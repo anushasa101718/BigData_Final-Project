@@ -1,8 +1,6 @@
-
-Title: "BigData_FinalProject"
-author: "Anusha singamaneni"
-date: "5/2/2020"
-
+#title: "BigData_FinalProject"
+#author: "Anusha singamaneni"
+#date: "5/2/2020"
 
 ## Loading Data
 require(dplyr)
@@ -135,32 +133,59 @@ barplot(smoke.ad$Value)
 library(tidyverse)
 library(ggplot2)
 
+#Plots showing the people affected with HIV/Aids in Atlanta (Fulton County), GA
+health_atlanta <- health.data %>%
+  filter(Place == "Atlanta (Fulton County), GA")
+health_atlanta_hiv <- health_atlanta %>%
+  filter(Indicator.Category == "HIV/AIDS")
+ggplot(health_atlanta_hiv, aes(Race..Ethnicity,Value))+
+  geom_point()+geom_boxplot()
+ggplot(health_atlanta_hiv, aes(Gender,Value))+
+  geom_point()+geom_boxplot()
 
-New_data <- health.data[c(3:7)]
+
+
+#Plots showing the types of diseases people affected in the years 2012-2014
+New_data <- health.data[c(1:7)]
 New_data
 Data_MF<-New_data %>%
   filter(Year %in%  c(2012, 2013,2014))%>%
   filter(Gender!= "Both")%>%
   filter(Place %in% c("Atlanta (Fulton County), GA" , "Baltimore, MD"))
-#Data_MF
+Data_MF
 
-ggplot(Data_MF, aes(Place ,Year, color = Gender)) +geom_line()+ geom_point()
+ggplot(Data_MF, aes(Year ,Indicator.Category, color = Gender)) +geom_line()+ geom_point()
 
+#Plots shows which disease is the most affected of all in Atlanta
+ggplot(Data_MF, aes(Value,Indicator.Category, color = Gender)) +geom_line()+ geom_point()
+
+
+#Plots showing which ethnicity people are affected with Cancer and HIV/AIDS in Atlanta
 
 Data_Ind <- health.data %>%
   group_by(Indicator.Category , Year)%>%
   
   filter(Place == "Atlanta (Fulton County), GA") %>%
-  filter(Indicator.Category ==  "HIV/AIDS")%>%
   filter(Indicator.Category %in% c("Cancer", "HIV/AIDS")) 
-#Data_Ind
+Data_Ind
 
-ggplot(Data_Ind, aes(Year ,Indicator.Category,  color= Gender))+ geom_point()+geom_line()
+ggplot(Data_Ind, aes(Race..Ethnicity ,Value , color = Gender))+ geom_point()+geom_line()
+
+
+#Plots showing the people affected with cancer in Atlanta (Fulton County), GA
+health_atlanta <- health.data %>%
+  filter(Place == "Atlanta (Fulton County), GA")
+health_atlanta_cancer <- health_atlanta %>%
+  filter(Indicator.Category == "Cancer")
+ggplot(health_atlanta_cancer, aes(Race..Ethnicity,Value))+
+  geom_point()+geom_boxplot()
+ggplot(health_atlanta_cancer, aes(Gender,Value))+
+  geom_point()+geom_boxplot()
 
 
 #Analysis on Drinking data for high school students
 
-ggplot(drink.st, aes(Year, Ethnicity, color = Gender))+geom_boxplot()+geom_point()
+ggplot(drink.st, aes( Value,Place, color = Ethnicity ))+geom_line()+geom_point()
 
 #Performed linear regression model for Drinking and smoking data for high school students
 
@@ -172,7 +197,11 @@ par(mfrow = c(2, 2))
 plot(lm.fitg)
 
 # High School students who smoke
-ggplot(smoke.st, aes(Year, Place , color = Gender))+geom_boxplot()+geom_point()
+ggplot(smoke.st, aes(Value, Place , color = Year))+geom_line()+geom_point()
+#Smoke data:
+
+ggplot(smoke.st, aes(Value, Ethnicity, color = Gender))+geom_line()+geom_point()
+
 
 #Fit on data 
 lm.fitg=lm(Value~Gender,data=smoke.st)
@@ -198,9 +227,6 @@ summary(lm.fit)
 par(mfrow = c(2, 2))
 plot(lm.fit)
 
-#Smoke data:
-
-ggplot(smoke.st, aes(Place, Ethnicity, color = Gender))+geom_boxplot()+geom_point()
 
 ## Performing Multiple regression on High school students Smoke data.
 
@@ -219,8 +245,12 @@ summary(lm.fitall)
 par(mfrow = c(2, 2))
 plot(lm.fitall)
 
+
+
 #  Adults drinking data
-ggplot(drink.ad , aes(Ethnicity , Place , color = Gender))+geom_boxplot()+geom_point()
+ggplot(drink.ad , aes(Ethnicity ,Place, color = Value))+geom_line()+geom_point()
+ggplot(drink.ad , aes(Ethnicity ,Value, color = Gender))+geom_line()+geom_point()
+
 ## Multiple Regression analysis on Adults drinking data
 # Similarly run the fit on Adults data
 lm.fitAd=lm(Value~Gender,data=drink.ad) 
@@ -241,7 +271,7 @@ par(mfrow = c(2, 2))
 plot(lm.fitAd)
 
 #Adults smoke data
-ggplot(smoke.ad, aes(Ethnicity, Place, color = Gender))+geom_boxplot()+geom_point()
+ggplot(smoke.ad, aes(Value, Place, color = Ethnicity))+geom_line()+geom_point()
 
 # Multiple Regression analysis on Adults smoking data
 #Adults who smoke
@@ -258,13 +288,9 @@ summary(lm.fitall)
 par(mfrow = c(2, 2))
 plot(lm.fitall)
 
-
-#Basic Regression Trees:
-
+#Basic Regression Trees
 require(tree)
-
 #a) Drinking data for Students
-
 set.seed(1) 
 
 ## Create the Training dataset
@@ -292,6 +318,7 @@ yhat=predict(tree.drink.st,newdata=drink.st[-train,])
 drink.st.test = drink.st[-train,"Value"] 
 plot(yhat,drink.st.test)
 abline(0,1)
+
 mean((yhat-drink.st.test)^2) 
 
 # Boosting
@@ -305,7 +332,8 @@ par(mfrow=c(1,2))
 plot(boost.drink.st,i="Place", type = "l")
 plot(boost.drink.st,i="Ethnicity", type = "l")
 
-#b) Smoking data for Students   
+
+# ii) Smoking data for Students   
 
 set.seed(1) 
 
@@ -349,7 +377,10 @@ par(mfrow=c(1,2))
 plot(boost.smoke.st,i="Place", type = "l") 
 plot(boost.smoke.st,i="Ethnicity", type = "l")
 
+
 #c) Drinking data for Adults
+
+require(tree)
 
 set.seed(1) 
 
@@ -383,6 +414,8 @@ abline(0,1)
 mean((yhat-drink.ad.test)^2) 
 
 #d) Smoking data for Adults
+
+require(tree)
 
 set.seed(1) 
 
@@ -426,4 +459,6 @@ summary(boost.smoke.ad)
 par(mfrow=c(1,2)) 
 plot(boost.smoke.ad,i="Place", type = "l") 
 plot(boost.smoke.ad,i="Ethnicity", type = "l")
+
+
 
